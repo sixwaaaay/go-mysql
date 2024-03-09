@@ -343,6 +343,29 @@ func (c *Canal) GetMasterGTIDSet() (mysql.GTIDSet, error) {
 	return gset, nil
 }
 
+func (c *Canal) GetMasterGTIDSetFromStart() (mysql.GTIDSet, error) {
+	query := ""
+	switch c.cfg.Flavor {
+	case mysql.MariaDBFlavor:
+		query = "SELECT @@GLOBAL.gtid_purged"
+	default:
+		query = "SELECT @@GLOBAL.GTID_PURGED"
+	}
+	rr, err := c.Execute(query)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	gx, err := rr.GetString(0, 0)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	gset, err := mysql.ParseGTIDSet("mysql", gx)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	return gset, nil
+}
+
 func (c *Canal) CatchMasterPos(timeout time.Duration) error {
 	pos, err := c.GetMasterPos()
 	if err != nil {
