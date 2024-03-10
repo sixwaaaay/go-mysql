@@ -100,6 +100,8 @@ type Config struct {
 
 	// Set Localhost
 	Localhost string
+
+	NeedDump bool
 }
 
 func NewConfigWithFile(name string) (*Config, error) {

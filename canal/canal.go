@@ -87,8 +87,13 @@ func NewCanal(cfg *Config) (*Canal, error) {
 
 	var err error
 
-	if err = c.prepareDumper(); err != nil {
-		return nil, errors.Trace(err)
+	if cfg.NeedDump {
+		if err = c.prepareDumper(); err != nil {
+			return nil, errors.Trace(err)
+		}
+	} else {
+		c.dumped = true
+		close(c.dumpDoneCh)
 	}
 
 	if err = c.prepareSyncer(); err != nil {
